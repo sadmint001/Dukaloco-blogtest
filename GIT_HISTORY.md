@@ -1,18 +1,16 @@
-
 # Project Commit History
 
-## [v1.4.0] - State-of-the-Art Mobile UX
-- **feat:** Implement ergonomic Mobile FAB (Floating Action Button) for thumb-friendly interaction
-- **feat:** Redesign mobile modals as bottom-sheet overlays with tactile drag-handles
-- **style:** Enhance mobile nav glassmorphism with dynamic indicator dots and pulsing effects
-- **perf:** Optimize Recharts aspect ratios for ultra-narrow mobile viewports (320px+)
-- **fix:** Align local Vite dependencies by syncing `importmap` and standard ESM imports
+## [v1.5.1] - Build Fix & Sidebar Refinement
+- **fix:** Resolve `tsc` errors in `AuthContext.tsx` with explicit types and path corrections
+- **feat:** Finalized responsive Side Drawer for mobile (left-aligned)
+- **feat:** Ensured Log Out button is accessible on all device viewports via the sidebar
+- **style:** Added high-blur backdrop for mobile menu interactions
 
-## [v1.3.0] - Mobile-First Refactor
-- **feat:** Implement glassmorphic bottom navigation bar for mobile-optimized UX
-- **style:** Optimize all grid systems and paddings for small screen responsiveness
-- **perf:** Adaptive chart heights and label density for narrow viewports
+## [v1.5.0] - Responsive Side Drawer
+- **feat:** Replaced bottom navigation with a standard responsive side drawer for mobile
+- **feat:** Implemented Hamburger menu trigger in Header for mobile view
 
-## [v1.2.0] - State Management Evolution
-- **feat:** Migrate from React Context to **Zustand** for high-performance global state
-- **feat:** Implement `authStore` with built-in persistence middleware
+## [v1.4.1] - Build Stability & Cleanup
+- **fix:** Resolve `tsc` build errors in legacy `AuthContext.tsx`
+- **fix:** Align orphaned component imports with new directory structure
+- **refactor:** Add explicit types for strict TypeScript compliance

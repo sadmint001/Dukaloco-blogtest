@@ -1,7 +1,6 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User, AuthState } from '../types';
-import { MOCK_USERS } from '../constants';
+import { User, AuthState } from './types/index';
+import { MOCK_USERS } from './constants/index';
 
 interface AuthContextType extends AuthState {
   login: (role: 'admin' | 'user') => void;
@@ -26,12 +25,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         isLoading: false,
       });
     } else {
-      setAuth(prev => ({ ...prev, isLoading: false }));
+      setAuth((prev: AuthState) => ({ ...prev, isLoading: false }));
     }
   }, []);
 
   const login = (role: 'admin' | 'user') => {
-    const user = MOCK_USERS.find(u => u.role === role);
+    const user = MOCK_USERS.find((u: User) => u.role === role);
     if (user) {
       localStorage.setItem('dukaloco_user', JSON.stringify(user));
       setAuth({
