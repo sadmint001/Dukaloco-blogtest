@@ -1,0 +1,5 @@
+{
+  "name": "Copy of Dukaloco Blog Admin",
+  "description": "A high-performance blogging application with built-in authentication, role-based access control, and real-time data integration with JSONPlaceholder API.",
+  "requestFramePermissions": []
+}

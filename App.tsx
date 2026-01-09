@@ -1,0 +1,157 @@
+
+import React, { useState, useMemo } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import Layout from './components/layout/Layout';
+import PostCard from './components/features/posts/PostCard';
+import PostModal from './components/features/posts/PostModal';
+import InsightsHub from './components/features/dashboard/InsightsHub';
+import Logo from './components/ui/Logo';
+import LoadingSpinner from './components/ui/LoadingSpinner';
+import { usePosts } from './hooks/usePosts';
+import { apiService } from './services/api.service';
+import { PlusCircle } from 'lucide-react';
+import { Post, User } from './types/index';
+
+const MainApp: React.FC = () => {
+  const queryClient = useQueryClient();
+  const { user, isAuthenticated, login } = useAuth();
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingPost, setEditingPost] = useState<Post | null>(null);
+
+  const { data: users = [] } = useQuery<User[]>({
+    queryKey: ['users'],
+    queryFn: apiService.fetchUsers,
+  });
+
+  const { 
+    posts, 
+    isLoading: postsLoading, 
+    createPost, 
+    updatePost, 
+    deletePost 
+  } = usePosts(users);
+
+  const statsData = useMemo(() => {
+    if (!posts.length || !users.length) return [];
+    const counts: Record<number, number> = {};
+    posts.forEach(p => {
+      counts[p.userId] = (counts[p.userId] || 0) + 1;
+    });
+    
+    return Object.entries(counts)
+      .map(([userId, count]) => ({
+        name: users.find(u => u.id === parseInt(userId))?.name.split(' ')[0] || `U${userId}`,
+        count
+      }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 6);
+  }, [posts, users]);
+
+  const handlePostSubmit = (data: Partial<Post>) => {
+    if (editingPost) {
+      updatePost.mutate({ id: editingPost.id, data }, {
+        onSuccess: () => {
+          queryClient.setQueryData(['posts'], (old: Post[] | undefined) => 
+            (old || []).map(p => p.id === editingPost.id ? { ...p, ...data } : p)
+          );
+          setEditingPost(null);
+          setIsModalOpen(false);
+        }
+      });
+    } else {
+      createPost.mutate(data, {
+        onSuccess: (newPost) => {
+          const enrichedPost = {
+            ...newPost,
+            id: Math.max(...posts.map(p => p.id), 0) + 1,
+            userId: user?.id || 1,
+            authorName: user?.name || 'Session User'
+          };
+          queryClient.setQueryData(['posts'], (old: Post[] | undefined) => [enrichedPost, ...(old || [])]);
+          setIsModalOpen(false);
+        }
+      });
+    }
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-[#020617] flex items-center justify-center p-6 relative overflow-hidden">
+        <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-indigo-600/20 rounded-full blur-[120px] animate-float"></div>
+        <div className="max-w-md w-full glass-card p-12 rounded-[48px] text-center shadow-2xl relative z-10 border border-white/10">
+          <Logo className="w-24 h-24 mx-auto mb-10 drop-shadow-[0_15px_30px_rgba(168,218,220,0.3)] animate-float" />
+          <h1 className="text-4xl font-extrabold text-white mb-3 tracking-tight">Dukaloco Blog</h1>
+          <p className="text-slate-400 mb-10 text-sm font-medium">Authentication required for workspace access.</p>
+          <div className="space-y-4">
+            <button onClick={() => login('admin')} className="w-full bg-white text-slate-950 px-8 py-4.5 rounded-[20px] font-bold transition-all hover:bg-indigo-50 active:scale-95 shadow-lg">Administrator Login</button>
+            <button onClick={() => login('user')} className="w-full bg-slate-800 hover:bg-slate-700 text-white px-8 py-4.5 rounded-[20px] font-bold transition-all active:scale-95 border border-white/5">Standard Member Access</button>
+          </div>
+          <p className="mt-12 text-[10px] text-slate-500 font-bold uppercase tracking-[0.4em]">Welcome</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <Layout activeTab={activeTab} onTabChange={setActiveTab}>
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+        <div>
+          <h2 className="text-4xl font-extrabold text-white tracking-tighter mb-2">
+            {activeTab === 'dashboard' ? 'Insight Hub' : 'Content Stream'}
+          </h2>
+          <div className="flex items-center gap-2">
+             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+             <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">Live System Status: Optimal</p>
+          </div>
+        </div>
+        {activeTab === 'posts' && (
+          <button
+            onClick={() => { setEditingPost(null); setIsModalOpen(true); }}
+            className="flex items-center gap-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-2xl font-bold hover:shadow-[0_10px_30px_rgba(79,70,229,0.4)] transition-all transform hover:-translate-y-1 active:scale-95"
+          >
+            <PlusCircle className="w-5 h-5" />
+            New Article
+          </button>
+        )}
+      </div>
+
+      {postsLoading ? (
+        <LoadingSpinner />
+      ) : activeTab === 'dashboard' ? (
+        <InsightsHub postCount={posts.length} userCount={users.length} chartData={statsData} />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-32 animate-in fade-in slide-in-from-bottom-8 duration-700">
+          {posts.map(post => (
+            <PostCard
+              key={post.id}
+              post={post}
+              currentUser={user}
+              onEdit={(p) => { setEditingPost(p); setIsModalOpen(true); }}
+              onDelete={(id) => deletePost.mutate(id, {
+                onSuccess: () => queryClient.setQueryData(['posts'], (old: Post[] | undefined) => (old || []).filter(p => p.id !== id))
+              })}
+            />
+          ))}
+        </div>
+      )}
+
+      <PostModal
+        isOpen={isModalOpen}
+        onClose={() => { setIsModalOpen(false); setEditingPost(null); }}
+        onSubmit={handlePostSubmit}
+        initialData={editingPost}
+        isLoading={createPost.isPending || updatePost.isPending}
+      />
+    </Layout>
+  );
+};
+
+const App: React.FC = () => (
+  <AuthProvider>
+    <MainApp />
+  </AuthProvider>
+);
+
+export default App;
