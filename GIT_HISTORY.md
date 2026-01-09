@@ -1,6 +1,13 @@
 
 # Project Commit History
 
+## [v1.2.0] - State Management Evolution
+- **feat:** Migrate from React Context to **Zustand** for high-performance, boilerplate-free global state
+- **feat:** Implement `authStore` with built-in persistence middleware for seamless session recovery
+- **feat:** Implement `uiStore` to decouple navigation and modal logic from view components
+- **refactor:** Consolidate directory structure into atomic feature folders (`features/`, `store/`, `hooks/`)
+- **perf:** Optimize re-renders using Zustand's selective subscription pattern
+
 ## [v1.1.0] - Branding Integration
 - **feat:** Implement high-fidelity SVG reproduction of official Duka Loco logo
 - **style:** Integrate circular branding across login, sidebar, and mobile layouts

@@ -5,14 +5,12 @@ import Header from './Header';
 
 interface LayoutProps {
   children: React.ReactNode;
-  activeTab: string;
-  onTabChange: (tab: string) => void;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange }) => {
+const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className="flex h-screen bg-slate-950 text-slate-100 overflow-hidden">
-      <Sidebar activeTab={activeTab} onTabChange={onTabChange} />
+      <Sidebar />
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
         <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[120px] -z-10 animate-float"></div>

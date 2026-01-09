@@ -1,16 +1,13 @@
 
 import React from 'react';
-import { useAuth } from '../../context/AuthContext';
+import { useAuthStore } from '../../store/authStore';
+import { useUIStore } from '../../store/uiStore';
 import Logo from '../ui/Logo';
 import { LayoutDashboard, FileText, LogOut } from 'lucide-react';
 
-interface SidebarProps {
-  activeTab: string;
-  onTabChange: (tab: string) => void;
-}
-
-const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
-  const { user, logout } = useAuth();
+const Sidebar: React.FC = () => {
+  const { user, logout } = useAuthStore();
+  const { activeTab, setActiveTab } = useUIStore();
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
@@ -30,7 +27,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
         {navItems.map((item) => (
           <button
             key={item.id}
-            onClick={() => onTabChange(item.id)}
+            onClick={() => setActiveTab(item.id)}
             className={`w-full flex items-center gap-4 px-5 py-3.5 text-sm font-semibold rounded-2xl transition-all duration-300 ${
               activeTab === item.id
                 ? 'bg-indigo-600/10 text-indigo-400 ring-1 ring-indigo-500/30 shadow-[0_0_20px_rgba(79,70,229,0.1)]'

@@ -1,7 +1,8 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { useAuthStore } from './store/authStore';
+import { useUIStore } from './store/uiStore';
 import Layout from './components/layout/Layout';
 import PostCard from './components/features/posts/PostCard';
 import PostModal from './components/features/posts/PostModal';
@@ -15,10 +16,16 @@ import { Post, User } from './types/index';
 
 const MainApp: React.FC = () => {
   const queryClient = useQueryClient();
-  const { user, isAuthenticated, login } = useAuth();
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingPost, setEditingPost] = useState<Post | null>(null);
+  
+  // Zustand Stores
+  const { user, isAuthenticated, login } = useAuthStore();
+  const { 
+    activeTab, 
+    isModalOpen, 
+    editingPost, 
+    openModal, 
+    closeModal 
+  } = useUIStore();
 
   const { data: users = [] } = useQuery<User[]>({
     queryKey: ['users'],
@@ -56,8 +63,7 @@ const MainApp: React.FC = () => {
           queryClient.setQueryData(['posts'], (old: Post[] | undefined) => 
             (old || []).map(p => p.id === editingPost.id ? { ...p, ...data } : p)
           );
-          setEditingPost(null);
-          setIsModalOpen(false);
+          closeModal();
         }
       });
     } else {
@@ -70,7 +76,7 @@ const MainApp: React.FC = () => {
             authorName: user?.name || 'Session User'
           };
           queryClient.setQueryData(['posts'], (old: Post[] | undefined) => [enrichedPost, ...(old || [])]);
-          setIsModalOpen(false);
+          closeModal();
         }
       });
     }
@@ -95,7 +101,7 @@ const MainApp: React.FC = () => {
   }
 
   return (
-    <Layout activeTab={activeTab} onTabChange={setActiveTab}>
+    <Layout>
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div>
           <h2 className="text-4xl font-extrabold text-white tracking-tighter mb-2">
@@ -108,7 +114,7 @@ const MainApp: React.FC = () => {
         </div>
         {activeTab === 'posts' && (
           <button
-            onClick={() => { setEditingPost(null); setIsModalOpen(true); }}
+            onClick={() => openModal()}
             className="flex items-center gap-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-2xl font-bold hover:shadow-[0_10px_30px_rgba(79,70,229,0.4)] transition-all transform hover:-translate-y-1 active:scale-95"
           >
             <PlusCircle className="w-5 h-5" />
@@ -128,7 +134,7 @@ const MainApp: React.FC = () => {
               key={post.id}
               post={post}
               currentUser={user}
-              onEdit={(p) => { setEditingPost(p); setIsModalOpen(true); }}
+              onEdit={(p) => openModal(p)}
               onDelete={(id) => deletePost.mutate(id, {
                 onSuccess: () => queryClient.setQueryData(['posts'], (old: Post[] | undefined) => (old || []).filter(p => p.id !== id))
               })}
@@ -139,7 +145,7 @@ const MainApp: React.FC = () => {
 
       <PostModal
         isOpen={isModalOpen}
-        onClose={() => { setIsModalOpen(false); setEditingPost(null); }}
+        onClose={closeModal}
         onSubmit={handlePostSubmit}
         initialData={editingPost}
         isLoading={createPost.isPending || updatePost.isPending}
@@ -149,9 +155,7 @@ const MainApp: React.FC = () => {
 };
 
 const App: React.FC = () => (
-  <AuthProvider>
-    <MainApp />
-  </AuthProvider>
+  <MainApp />
 );
 
 export default App;
