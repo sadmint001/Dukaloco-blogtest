@@ -7,32 +7,32 @@ const MobileNav: React.FC = () => {
   const { activeTab, setActiveTab } = useUIStore();
 
   const items = [
-    { id: 'dashboard', label: 'Hub', icon: <LayoutDashboard className="w-6 h-6" /> },
-    { id: 'posts', label: 'Feed', icon: <FileText className="w-6 h-6" /> },
+    { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="w-6 h-6" /> },
+    { id: 'posts', label: 'Articles', icon: <FileText className="w-6 h-6" /> },
   ];
 
   return (
-    <nav className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-[400px]">
-      <div className="glass-card rounded-[32px] p-2 flex items-center justify-around shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-white/10 ring-1 ring-white/5">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 px-4 pb-6 pt-2 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent">
+      <div className="glass-card rounded-[28px] p-1.5 flex items-center justify-around shadow-[0_20px_50px_rgba(0,0,0,0.8)] border-white/10 ring-1 ring-white/5 max-w-md mx-auto">
         {items.map((item) => {
           const isActive = activeTab === item.id;
           return (
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`flex flex-col items-center justify-center py-3 px-8 rounded-[24px] transition-all duration-500 relative ${
+              className={`flex flex-col items-center justify-center py-2.5 px-6 rounded-[22px] transition-all duration-500 relative flex-1 ${
                 isActive ? 'text-indigo-400' : 'text-slate-500'
               }`}
             >
-              {isActive && (
-                <div className="absolute inset-0 bg-indigo-500/10 rounded-[24px] animate-in fade-in zoom-in duration-300"></div>
-              )}
-              <div className={`relative z-10 transition-transform duration-300 ${isActive ? 'scale-110 -translate-y-1' : ''}`}>
+              <div className={`relative z-10 transition-transform duration-500 ${isActive ? 'scale-110 -translate-y-0.5' : 'scale-100'}`}>
                 {item.icon}
               </div>
-              <span className="text-[10px] font-bold uppercase tracking-widest mt-1 relative z-10">
+              <span className={`text-[10px] font-bold uppercase tracking-[0.15em] mt-1 relative z-10 transition-all duration-300 ${isActive ? 'opacity-100' : 'opacity-0 h-0 overflow-hidden'}`}>
                 {item.label}
               </span>
+              {isActive && (
+                <div className="absolute -bottom-1 w-1 h-1 bg-indigo-500 rounded-full animate-pulse shadow-[0_0_8px_#6366f1]"></div>
+              )}
             </button>
           );
         })}

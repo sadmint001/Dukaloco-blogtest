@@ -11,7 +11,7 @@ import Logo from './components/ui/Logo';
 import LoadingSpinner from './components/ui/LoadingSpinner';
 import { usePosts } from './hooks/usePosts';
 import { apiService } from './services/api.service';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, PenLine } from 'lucide-react';
 import { Post, User } from './types/index';
 
 const MainApp: React.FC = () => {
@@ -101,7 +101,7 @@ const MainApp: React.FC = () => {
 
   return (
     <Layout>
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6 mb-8 md:mb-12">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6 mb-8 md:mb-12 pt-4 md:pt-0">
         <div>
           <h2 className="text-3xl md:text-4xl font-extrabold text-white tracking-tighter mb-1 md:mb-2">
             {activeTab === 'dashboard' ? 'Insight Hub' : 'Content Stream'}
@@ -111,10 +111,12 @@ const MainApp: React.FC = () => {
              <p className="text-slate-500 text-[10px] md:text-xs font-bold uppercase tracking-widest">System Optimal</p>
           </div>
         </div>
+        
+        {/* Desktop Create Button */}
         {activeTab === 'posts' && (
           <button
             onClick={() => openModal()}
-            className="flex items-center justify-center gap-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 md:px-8 py-3.5 md:py-4 rounded-2xl font-bold text-sm md:text-base hover:shadow-[0_10px_30px_rgba(79,70,229,0.4)] transition-all transform hover:-translate-y-1 active:scale-95"
+            className="hidden md:flex items-center justify-center gap-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-2xl font-bold text-base hover:shadow-[0_10px_30px_rgba(79,70,229,0.4)] transition-all transform hover:-translate-y-1 active:scale-95"
           >
             <PlusCircle className="w-5 h-5" />
             New Article
@@ -140,6 +142,16 @@ const MainApp: React.FC = () => {
             />
           ))}
         </div>
+      )}
+
+      {/* Mobile Floating Action Button (FAB) */}
+      {activeTab === 'posts' && !isModalOpen && (
+        <button
+          onClick={() => openModal()}
+          className="md:hidden fixed bottom-28 right-6 z-40 w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white shadow-[0_15px_35px_rgba(99,102,241,0.5)] active:scale-90 transition-transform duration-300 ring-4 ring-slate-950"
+        >
+          <PenLine className="w-7 h-7" />
+        </button>
       )}
 
       <PostModal
